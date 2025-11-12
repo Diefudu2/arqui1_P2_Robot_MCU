@@ -17,8 +17,7 @@ El sistema se divide en tres capas principales:
 ## 📊 Diagrama de arquitectura
 
 La siguiente imagen representa la estructura modular del sistema:
-
-![Arquitectura CNC](img/diagrama arquitectura.png)
+![Arquitectura CNC](img/diagrama%20arquitectura.png)
 
 > El diagrama fue generado con Graphviz y muestra la comunicación entre los componentes del sistema.
 
