@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CNC Plotter Web</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="card">
+        <h1>CNC Plotter</h1>
+
+        <!-- PANTALLA DE CONEXIÓN -->
+        <section id="screen-conn">
+            <label for="keyInput">Key de conexión</label>
+            <input id="keyInput" type="text" placeholder="Ingresa la key..." />
+            <button id="btnConnect">Conectar</button>
+            <p id="statusConn" class="status"></p>
+        </section>
+
+        <!-- PANTALLA DE IMAGEN -->
+        <section id="screen-image" class="hidden">
+            <label for="fileInput">Imagen a dibujar</label>
+            <input id="fileInput" type="file" accept="image/*" />
+            <div id="previewBox" class="preview">Vista previa de la imagen</div>
+            <button id="btnSend" disabled>Enviar al plotter</button>
+            <p id="statusSend" class="status"></p>
+        </section>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
