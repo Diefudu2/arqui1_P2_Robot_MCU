@@ -8,13 +8,26 @@ Este proyecto es un **CNC pen plotter** controlado por un ATmega328P (tipo Ardui
 - Un **MPU6050** que tiene protocolo de comunicación I2C para detección de vibraciones / golpes.
 - **Sensores de home** en los ejes X e Y para encontrar el origen físico (0,0) al arrancar.
 
-El archivo principal es:
+El sistema se divide en tres capas principales:
+
+1. **Frontend Web (PC 1)**: Interfaz gráfica para enviar comandos.
+2. **Servidor Intermedio (PC 2)**: Traduce comandos y los envía por UART.
+3. **Microcontrolador + Robot**: Ejecuta los comandos físicos.
+
+## Diagrama de arquitectura
+
+La siguiente imagen representa la estructura modular del sistema:
+
+![Arquitectura CNC](img/diagrama%20arquitectura.png)
+
+El programa principal cargado en el ATmega328P es:
 
 ```text
 motores_shifter.ino
 ```
 
 ---
+Este controla todo el movimiento en los ejes x, y y zde los motores stepper y el servo, además la lógica de los sensores endstops para el (0,0) y el acelerometro.
 
 ## Hardware 
 
@@ -108,7 +121,7 @@ Esto se aplica tanto a:
 - Listas de coordenadas (`[(x1,y1),(x2,y2),...]`).
 - Puntos individuales en streaming (`x,y`).
 
-Los puntos válidos (dentro de 0..1000) se trazan normalmente.
+Los puntos válidos (dentro de 0..1000) son los que se trazan normalmente.
 
 ---
 
@@ -305,17 +318,3 @@ Puedes ajustar:
 
 ---
 
-## Notas finales
-
-- Si ves que con movimientos normales de los motores el MPU dispara demasiadas alertas:
-  - Sube `MOV_THRESHOLD_G` (ej. 0.7, 1.0 g).
-- Si nunca se dispara ni con golpes fuertes:
-  - Baja `MOV_THRESHOLD_G` (ej. 0.3 g).
-- Si el sistema se queda “congelado” demasiado:
-  - Baja temporalmente `MPU_MIN_STOP_MS` para pruebas (ej. 2000 ms).
-- Asegúrate de tener:
-  - Buena alimentación separada o con suficiente capacidad (condensadores).
-  - Cables de I2C cortos y alejados de los motores.
-  - GND común entre todas las fuentes/módulos.
-
-Este README resume el comportamiento actual del firmware `cnc_pen_plotter.ino` y cómo interactuar con él tanto desde Bluetooth como desde el Monitor Serie, respetando el canvas lógico de **0..1000 en X e Y** y las medidas de seguridad por vibración. 
