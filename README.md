@@ -5,31 +5,32 @@ Este proyecto es un **CNC pen plotter** controlado por un ATmega328P (tipo Ardui
 - **Dos motores paso a paso 28BYJ-48** controlados mediante un **74HC595** (expansor de salidas).
 - Comunicación **Bluetooth (HC‑05)** para recibir comandos de trazado.
 - Un **servo** para subir/bajar el lápiz.
-- Un **MPU6050** para detección de vibraciones / golpes.
+- Un **MPU6050** que tiene protocolo de comunicación I2C para detección de vibraciones / golpes.
 - **Sensores de home** en los ejes X e Y para encontrar el origen físico (0,0) al arrancar.
 
 El archivo principal es:
 
 ```text
-cnc_pen_plotter.ino
+motores_shifter.ino
 ```
 
 ---
 
-## Hardware (resumen)
+## Hardware 
 
 ### Microcontrolador
 
-- ATmega328P (Arduino UNO / Pro Mini / bare-metal con bootloader equivalente).
+- ATmega328P (Arduino UNO bare-metal con bootloader).
 
 ### Motores
 
-- 2x **28BYJ‑48** + 2x ULN2003 (o similar).
+- 2x **28BYJ‑48** + 2x drivers ULN2003 para control de ejes x, y.
 - Salidas a motores se manejan vía **74HC595**:
   - `pinLatch = 12` (RCLK)
   - `pinClock = 11` (SRCLK)
   - `pinData  = 13` (SER)
-
+- 1x Servo Motor para control de eje z
+  
 ### Bluetooth
 
 - Módulo **HC‑05**:
@@ -45,15 +46,13 @@ cnc_pen_plotter.ino
   - `SERVO_UP   = 55`  → lápiz arriba
   - `SERVO_DOWN = 45`  → lápiz abajo
 
-Ajustar estos valores según tu mecánica para que el lápiz toque / no toque el papel.
-
 ### Sensores de home
 
-- Dos sensores tipo “fin de carrera” o botón:
+- Dos sensores tipo endstop mecanicos:
   - `HOME_X_PIN = 7` → sensor eje X
   - `HOME_Y_PIN = 8` → sensor eje Y
 - Configurados como `INPUT_PULLUP`:
-  - Se asume que **cuando están activados conectan a GND** → lectura `LOW`.
+  - Se asume que **cuando están activados conectan a GND**, lectura `LOW`.
 
 ### MPU6050 (acelerómetro)
 
@@ -85,13 +84,9 @@ Esta función:
 4. Si no los encuentra a tiempo:
    - Informa un error por Serial y Bluetooth.
 
-Este homing solo se hace **una vez, al inicio**.
-
-### 2. Sistema de coordenadas
-
-- El **canvas lógico** es:
-  - `X` de `0` a `1000`
-  - `Y` de `0` a `1000`
+### 2. Sistema de coordenadas 
+- `X` de `0` a `1000`
+- `Y` de `0` a `1000`
 - Internamente, el código multiplica por 10:
   - `targetX = xVal * 10;`
   - `targetY = yVal * 10;`
@@ -122,7 +117,6 @@ Los puntos válidos (dentro de 0..1000) se trazan normalmente.
 Todos los comandos se pueden enviar:
 
 - Por **Bluetooth** (HC‑05).
-- Por **Serial Monitor** (USB), respetando el mismo formato.
 
 ### 1. Trazo por lista de puntos
 
