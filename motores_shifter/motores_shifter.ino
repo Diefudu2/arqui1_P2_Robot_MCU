@@ -292,7 +292,7 @@ void homingRoutine() {
   }
 }
 
-// --- Procesar coordenadas optimizado ---
+// --- Procesar coordenadas en bloque (no usado por bluetoothTest.js, pero disponible) ---
 void processCoordinates(String input) {
   input.trim();
   input.replace(" ", "");
@@ -304,6 +304,10 @@ void processCoordinates(String input) {
     Serial.println(F("ERROR: Formato de coordenadas incorrecto"));
     return;
   }
+
+  Serial.print(F("DEBUG LISTA COMPLETA: '"));
+  Serial.print(input);
+  Serial.println(F("'"));
   
   bluetooth.println(F("TRAZO: INICIANDO desde lista de puntos"));
   Serial.println(F("TRAZO: INICIANDO desde lista de puntos"));
@@ -327,13 +331,20 @@ void processCoordinates(String input) {
     
     String coords = input.substring(openParen + 1, closeParen);
     int commaIndex = coords.indexOf(',');
+
+    Serial.print(F("DEBUG COORD RAW: '"));
+    Serial.print(coords);
+    Serial.println(F("'"));
     
     if (commaIndex > 0) {
-      // Se reciben coordenadas en "puntos" de 0 a 1000 (canvas lógico 0,0 a 1000,1000)
       long xVal = coords.substring(0, commaIndex).toInt();
       long yVal = coords.substring(commaIndex + 1).toInt();
 
-      // Validar rango del canvas lógico [0,1000]x[0,1000]
+      Serial.print(F("DEBUG COORD PARSED x="));
+      Serial.print(xVal);
+      Serial.print(F(" y="));
+      Serial.println(yVal);
+
       if (xVal < 0 || xVal > 1000 || yVal < 0 || yVal > 1000) {
         Serial.print(F("PUNTO INVALIDO IGNORADO: ("));
         Serial.print(xVal);
@@ -344,14 +355,12 @@ void processCoordinates(String input) {
         bluetooth.print(xVal);
         bluetooth.print(F(",")); 
         bluetooth.println(yVal);
-        // ignorar este punto y continuar con el siguiente
       } else {
         long targetX = xVal * 10;
         long targetY = yVal * 10;
         
         coordCount++;
         
-        // Mostrar progreso cada 100 puntos válidos
         if (coordCount % 100 == 0) {
           Serial.print(F("TRAZO: Punto "));
           Serial.print(coordCount);
@@ -365,7 +374,6 @@ void processCoordinates(String input) {
         }
         
         moveTo(targetX, targetY);
-        // Marcar el punto con el lápiz
         penDown();
         penUp();
       }
@@ -394,16 +402,14 @@ void processCoordinates(String input) {
   Serial.println(F(")"));
 }
 
-// --- Funciones para streaming ---
+// --- Funciones para streaming punto a punto ---
 bool parsePointCommand(const String& input, long& targetX, long& targetY) {
   int commaIdx = input.indexOf(',');
   if (commaIdx <= 0) return false;
 
-  // Coordenadas recibidas en rango lógico 0..1000
   long xVal = input.substring(0, commaIdx).toInt();
   long yVal = input.substring(commaIdx + 1).toInt();
 
-  // Validar rango del canvas lógico [0,1000]x[0,1000]
   if (xVal < 0 || xVal > 1000 || yVal < 0 || yVal > 1000) {
     Serial.print(F("PUNTO STREAM INVALIDO IGNORADO: ("));
     Serial.print(xVal);
@@ -437,8 +443,9 @@ void handleStreamingCoordinate(long targetX, long targetY) {
   penDown();
   penUp();
 
+  // ACK para bluetoothTest.js
   bluetooth.println(F("READY"));
-  Serial.println(F("STREAM: Punto completado, READY para siguiente"));
+  Serial.println(F("READY"));
 }
 
 bool tryHandlePointCommand(const String& input) {
@@ -451,7 +458,7 @@ bool tryHandlePointCommand(const String& input) {
   return true;
 }
 
-// Cerrar sesión de streaming
+// Cerrar sesión de streaming (llamado al recibir "END")
 void closeStreamingSession() {
   if (streamingSession) {
     bluetooth.println(F("STREAM: Fin de sesion"));
@@ -470,7 +477,11 @@ void closeStreamingSession() {
     Serial.print(F(",")); 
     Serial.print(posY / 10);
     Serial.println(F(")"));
-    
+
+    // ACK final para bluetoothTest.js: espera "DONE" tras enviar "END"
+    bluetooth.println(F("DONE"));
+    Serial.println(F("STREAM: DONE enviado al cliente"));
+
     streamingSession = false;
     streamedPoints = 0;
   } else {
@@ -484,14 +495,20 @@ void processCommand(String input) {
   input.trim();
   if (input.length() == 0) return;  // ignorar línea vacía
 
+  Serial.print(F("DEBUG processCommand input: '"));
+  Serial.print(input);
+  Serial.println(F("'"));
+
   if (input.equalsIgnoreCase("END")) {
     closeStreamingSession();
     return;
   }
   if (tryHandlePointCommand(input)) {
+    Serial.println(F("DEBUG: interpretado como punto STREAM (x,y)"));
     return;
   }
   if (input.startsWith("[")) {
+    Serial.println(F("DEBUG: interpretado como LISTA de coordenadas"));
     processCoordinates(input);
     return;
   }
@@ -593,8 +610,9 @@ void setup() {
   Serial.println(F("========================================"));
   Serial.println(F("SISTEMA LISTO: CNC + Bluetooth + MPU6050 + Servo"));
   Serial.println(F("Comandos principales por Serial o Bluetooth:"));
-  Serial.println(F("  [(x1,y1),(x2,y2),...] - Trazo por lista de puntos (0..1000)"));
   Serial.println(F("  x,y                    - Punto unico en streaming (0..1000)"));
+  Serial.println(F("  END                    - Fin de sesion streaming (envia DONE)"));
+  Serial.println(F("  [(x1,y1),...]          - Trazo por lista (solo via Serial)"));
   Serial.println(F("  home                   - Ir al origen logico (0,0)"));
   Serial.println(F("  pos                    - Mostrar posicion actual"));
   Serial.println(F("  speed=X                - Velocidad en ms por paso"));
@@ -633,13 +651,16 @@ void loop() {
       Serial.print(F("BT: Lista de coordenadas recibida, chars="));
       Serial.println(inputBuffer.length());
       
+      Serial.print(F("DEBUG inputBuffer completo (BT): '"));
+      Serial.print(inputBuffer);
+      Serial.println(F("'"));
+
       processCommand(inputBuffer);
       inputBuffer = "";
     }
     else if (receivingData) {
       inputBuffer += c;
       
-      // Progreso cada 1000 chars
       if (inputBuffer.length() % 1000 == 0) {
         bluetooth.print(F("RX:PROGRESO_CHARS="));
         bluetooth.println(inputBuffer.length());
@@ -670,6 +691,10 @@ void loop() {
       receivingData = false;
       Serial.print(F("SERIAL: Lista de coordenadas recibida, chars="));
       Serial.println(inputBuffer.length());
+
+      Serial.print(F("DEBUG inputBuffer completo (SERIAL): '"));
+      Serial.print(inputBuffer);
+      Serial.println(F("'"));
       
       processCommand(inputBuffer);
       inputBuffer = "";
