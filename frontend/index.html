@@ -54,17 +54,21 @@
             <section class="card" id="screen-conn">
                 <h1>Conectar con el plotter</h1>
                 <p class="card-description">
-                    Ingresa la key de seguridad para establecer comunicación con el módulo
-                    Bluetooth HC-05 conectado al controlador del CNC plotter.
+                    Presiona "Conectar Bluetooth" para seleccionar el puerto COM del HC-05.
                 </p>
 
-                <div class="field-group">
-                    <label for="keyInput">Key de conexión</label>
-                    <input id="keyInput" type="text" placeholder="Ejemplo: Plotter" />
-                </div>
-
-                <button id="btnConnect">Conectar</button>
+                <button id="btnConnect">Conectar Bluetooth (HC-05)</button>
                 <p id="statusConn" class="status"></p>
+                
+                <!-- Test de comunicación -->
+                <div class="field-group" style="margin-top: 20px;">
+                    <label for="testInput">Mensaje de prueba</label>
+                    <input id="testInput" type="text" placeholder="Escribe algo y envía..." />
+                </div>
+                <button id="btnSendTest" disabled>Enviar mensaje de prueba</button>
+                <p id="statusTest" class="status"></p>
+
+                <button id="btnGoImage">Ir a paso de imagen</button>
             </section>
 
             <section class="card hidden" id="screen-image">
@@ -84,13 +88,27 @@
                     </span>
                 </div>
 
-                <button id="btnSend" disabled>Enviar al plotter</button>
-                <p id="statusSend" class="status"></p>
+                <div class="coords-panel">
+                    <p id="coordsMeta" class="status"></p>
+                    <p id="coordsCurrent" class="status"></p>
+                </div>
+
+                <button id="btnSendCoords" disabled>Enviar coordenadas por Bluetooth</button>
+                <p id="statusCoords" class="status"></p>
+            </section>
+
+            <section class="card" id="screen-serial">
+                <h2>Monitor Serial</h2>
+                <p class="card-description">
+                    Visualiza en tiempo real todo lo que envía el Arduino por el puerto serial.
+                </p>
+                <button id="btnClearLog" type="button">Limpiar monitor</button>
+                <pre id="serialLog" class="serial-log" style="max-height: 240px; overflow-y: auto;">[Monitor serial listo]</pre>
             </section>
         </main>
     </div>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js" defer></script>
 </body>
 
 </html>
