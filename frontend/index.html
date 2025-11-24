@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CNC Plotter Web</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- PANEL LATERAL / ENCABEZADO -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">CNC</div>
+                <div class="logo-text">
+                    <span class="logo-title">Mini Plotter</span>
+                    <span class="logo-subtitle">Hardware + HC-05</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <p class="status-label">Estado de conexión</p>
+                <p id="sidebarStatus" class="status-chip status-chip-disconnected">
+                    ● Desconectado
+                </p>
+                <p class="status-hint">
+                    Paso 1: Conéctate con la key.<br />
+                    Paso 2: Carga una imagen y envíala al plotter.
+                </p>
+            </div>
+
+            <div class="footer-note">
+                <p>Proyecto CNC Plotter – Grupo</p>
+                <p class="footer-small">Frontend: Interfaz Web de control</p>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="steps">
+                    <div class="step" id="step-1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Conexión</span>
+                    </div>
+                    <div class="step" id="step-2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Imagen</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="card" id="screen-conn">
+                <h1>Conectar con el plotter</h1>
+                <p class="card-description">
+                    Presiona "Conectar Bluetooth" para seleccionar el puerto COM del HC-05.
+                </p>
+
+                <button id="btnConnect">Conectar Bluetooth (HC-05)</button>
+                <p id="statusConn" class="status"></p>
+                
+                <!-- Test de comunicación -->
+                <div class="field-group" style="margin-top: 20px;">
+                    <label for="testInput">Mensaje de prueba</label>
+                    <input id="testInput" type="text" placeholder="Escribe algo y envía..." />
+                </div>
+                <button id="btnSendTest" disabled>Enviar mensaje de prueba</button>
+                <p id="statusTest" class="status"></p>
+
+                <button id="btnGoImage">Ir a paso de imagen</button>
+            </section>
+
+            <section class="card hidden" id="screen-image">
+                <h1>Cargar y enviar imagen</h1>
+                <p class="card-description">
+                    Selecciona la imagen que deseas dibujar.
+                </p>
+
+                <div class="field-group">
+                    <label for="fileInput">Imagen a dibujar</label>
+                    <input id="fileInput" type="file" accept="image/*" />
+                </div>
+
+                <div id="previewBox" class="preview">
+                    <span class="preview-placeholder">
+                        Aún no hay imagen seleccionada
+                    </span>
+                </div>
+
+                <div class="coords-panel">
+                    <p id="coordsMeta" class="status"></p>
+                    <p id="coordsCurrent" class="status"></p>
+                </div>
+
+                <button id="btnSendCoords" disabled>Enviar coordenadas por Bluetooth</button>
+                <p id="statusCoords" class="status"></p>
+            </section>
+
+            <section class="card" id="screen-serial">
+                <h2>Monitor Serial</h2>
+                <p class="card-description">
+                    Visualiza en tiempo real todo lo que envía el Arduino por el puerto serial.
+                </p>
+                <button id="btnClearLog" type="button">Limpiar monitor</button>
+                <pre id="serialLog" class="serial-log" style="max-height: 240px; overflow-y: auto;">[Monitor serial listo]</pre>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="js/main.js" defer></script>
+</body>
+
+</html>
