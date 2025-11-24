@@ -1,32 +1,39 @@
-import { apiConnect } from "./apiClient.js";
+import { connectBluetooth } from "./bluetoothTest.js";
 
 export function initConnectionView(onConnected) {
-    const keyInput = document.getElementById("keyInput");
     const btnConnect = document.getElementById("btnConnect");
     const statusConn = document.getElementById("statusConn");
 
+    // Verificar que los elementos existan
+    if (!btnConnect || !statusConn) {
+        console.error("[ERROR] No se encontraron los elementos necesarios:", {
+            btnConnect: !!btnConnect,
+            statusConn: !!statusConn
+        });
+        return;
+    }
+
     btnConnect.addEventListener("click", async () => {
-        const key = keyInput.value.trim();
-        if (!key) {
-            statusConn.textContent = "Por favor ingresa la key.";
-            return;
-        }
+        console.log("[DEBUG] Botón conectar presionado");
 
         btnConnect.disabled = true;
+
         statusConn.textContent = "Conectando...";
 
         try {
-            const res = await apiConnect(key);
-            if (res.ok) {
-                statusConn.textContent = "Conectado ✅";
+            const success = await connectBluetooth();
+            
+            if (success) {
+                statusConn.textContent = "✅ Conectado al HC-05 vía Bluetooth";
                 // Avisar al main que puede cambiar de pantalla
                 onConnected();
             } else {
-                statusConn.textContent = "Error: " + res.message;
+                statusConn.textContent = "❌ Error al conectar. Verifica que el HC-05 esté emparejado.";
+                btnConnect.disabled = false;
             }
         } catch (err) {
-            statusConn.textContent = "Error inesperado: " + err.message;
-        } finally {
+            console.error("[ERROR]", err);
+            statusConn.textContent = "❌ Error inesperado: " + err.message;
             btnConnect.disabled = false;
         }
     });
