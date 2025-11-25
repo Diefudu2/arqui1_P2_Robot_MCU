@@ -19,6 +19,9 @@ La siguiente imagen representa la estructura modular del sistema:
 
 ![Arquitectura CNC](img/diagrama%20arquitectura.png)
 
+## Flujo de Trabajo
+![Diagrama de Flujo](img/Flujo%20del%20programa%20principal.png)
+
 El programa principal cargado en el ATmega328P es:
 
 ```text
@@ -317,3 +320,86 @@ Puedes ajustar:
 
 ---
 
+## Interfaz
+
+
+## Dependencias
+```bash
+sudo apt install nodejs npm
+```
+
+## Ejecucion 
+### Backend
+En terminal ejecutar (solo una vez):
+```bash
+npm install
+```
+Inicar backend:
+```bash
+npm start
+```
+
+### Frontend
+En terminal ejecutar:
+```bash
+python3 -m http.server 8080
+```
+
+En el navegador:
+```text
+http://localhost:8080
+```
+## Pruebas Unitarias
+### Backend
+* Probar el endpoint raíz
+```bash
+curl http://localhost:3000/
+```
+* Probar /api/connect con key correcta
+```bash
+curl -X POST http://localhost:3000/api/connect \
+  -H "Content-Type: application/json" \
+  -d '{"key": "Plotter"}'
+```
+* Probar /api/send-image
+```bash
+curl -X POST http://localhost:3000/api/send-image \
+  -H "Content-Type: application/json" \
+  -d '{"imageName": "prueba.png"}'
+```
+## Comunicación Aplicación Web → Backend
+
+Protocolo: HTTP (API REST).
+Formato de datos: JSON.
+Endpoints principales:
+- POST /api/connect: Valida la key de acceso y habilita la comunicación con el hardware.
+- POST /api/send-image: Envía el nombre de la imagen seleccionada para su posterior procesamiento.
+
+## Comunicación Backend → Robot (Microcontrolador)
+
+Tecnología: Bluetooth Clásico (HC-05).
+Perfil: SPP (Serial Port Profile).
+Puerto virtual: /dev/rfcomm0
+Protocolo: UART serial (9600 baudios).
+
+El backend envía comandos al CNC Plotter mediante escritura serial sobre el enlace Bluetooth.
+
+## Control del Sistema
+
+Autenticación mediante key: evita accesos no autorizados.
+
+Establecimiento de conexión con el HC-05: apertura del puerto serial y verificación de estado.
+
+Carga y validación de imágenes: selección desde el navegador con vista previa.
+
+Envío de comandos al robot: el backend transforma las acciones del usuario en instrucciones seriales.
+
+## Monitoreo
+
+Visualización del estado de conexión (Conectado / Desconectado).
+Mensajes en tiempo real sobre:
+- Apertura del puerto serial
+- Envío de comandos
+- Validaciones y errores
+Registro de eventos en consola del backend para depuración.
+---
