@@ -301,7 +301,7 @@ Puedes ajustar:
    - Inicia Serial y Bluetooth.
    - Ata el servo y sube el lápiz.
    - Inicia I2C y configura el MPU6050.
-   - Ejecuta `homingRoutine()` para encontrar (0,0).
+   - Ejecuta `homingRoutine()` para encontrar el punto inicial del sistema (0,0).
    - Muestra mensajes de sistema listo y parámetros actuales.
 
 2. `loop()`:
