@@ -11,8 +11,7 @@ Este proyecto es un **CNC pen plotter** controlado por un ATmega328P (tipo Ardui
 El sistema se divide en tres capas principales:
 
 1. **Frontend Web (PC 1)**: Interfaz gráfica para enviar comandos.
-2. **Servidor Intermedio (PC 2)**: Traduce comandos y los envía por UART.
-3. **Microcontrolador + Robot**: Ejecuta los comandos físicos.
+2. **Microcontrolador + Robot**: Ejecuta los comandos físicos.
 
 ## Diagrama de arquitectura
 
@@ -27,7 +26,7 @@ motores_shifter.ino
 ```
 
 ---
-Este controla todo el movimiento en los ejes x, y y zde los motores stepper y el servo, además la lógica de los sensores endstops para el (0,0) y el acelerometro.
+Este controla todo el movimiento en los ejes x, y y zde los motores stepper y el servo, además la lógica de los sensores endstops para establecer el (0,0) y el uso del acelerometro y su threshold respectivo.
 
 ## Hardware 
 
@@ -59,7 +58,7 @@ Este controla todo el movimiento en los ejes x, y y zde los motores stepper y el
   - `SERVO_UP   = 55`  → lápiz arriba
   - `SERVO_DOWN = 45`  → lápiz abajo
 
-### Sensores de home
+### Sensores de home (0,0)
 
 - Dos sensores tipo endstop mecanicos:
   - `HOME_X_PIN = 7` → sensor eje X
@@ -69,7 +68,7 @@ Este controla todo el movimiento en los ejes x, y y zde los motores stepper y el
 
 ### MPU6050 (acelerómetro)
 
-- Conectado por I2C:
+- Conectado por I2C con pines:
   - `SDA = A4`
   - `SCL = A5`
 - Dirección I2C: `0x68`.
